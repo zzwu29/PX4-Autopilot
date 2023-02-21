@@ -1,6 +1,6 @@
 ############################################################################
 #
-#   Copyright (c) 2015-2022 PX4 Development Team. All rights reserved.
+#   Copyright (c) 2015-2019 PX4 Development Team. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -31,31 +31,28 @@
 #
 ############################################################################
 
-px4_add_module(
-	MODULE modules__simulation__simulator_mavlink
-	MAIN simulator_mavlink
-	COMPILE_FLAGS
-		-Wno-double-promotion
-		-Wno-cast-align
-		-Wno-address-of-packed-member # TODO: fix in c_library_v2
-	INCLUDES
-		${CMAKE_BINARY_DIR}/mavlink
-		${CMAKE_BINARY_DIR}/mavlink/development
-		${CMAKE_BINARY_DIR}/mavlink/common
-		${CMAKE_BINARY_DIR}/mavlink/standard
-	SRCS
-		SimulatorMavlink.cpp
-		SimulatorMavlink.hpp
-	DEPENDS
-		mavlink_c_generate
-		conversion
-		geo
-		drivers_accelerometer
-		drivers_gyroscope
-		drivers_magnetometer
-	)
+# required by other mixers
+add_subdirectory(MixerBase)
 
-#include(sitl_targets_flightgear.cmake)
-#include(sitl_targets_gazebo-classic.cmake)
-#include(sitl_targets_jmavsim.cmake)
-#include(sitl_targets_jsbsim.cmake)
+add_subdirectory(AllocatedActuatorMixer)
+add_subdirectory(HelicopterMixer)
+add_subdirectory(MultirotorMixer)
+add_subdirectory(NullMixer)
+add_subdirectory(SimpleMixer)
+
+add_library(mixer
+	MixerGroup.cpp
+	MixerGroup.hpp
+	load_mixer_file.cpp
+	mixer_load.h
+)
+
+target_link_libraries(mixer
+	PRIVATE
+		AllocatedActuatorMixer
+		HelicopterMixer
+		MultirotorMixer
+		NullMixer
+		SimpleMixer
+	)
+add_dependencies(mixer prebuild_targets)
