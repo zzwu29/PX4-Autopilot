@@ -163,7 +163,6 @@ void LoggedTopics::add_default_topics()
 	add_topic("estimator_gnss_hgt_bias", 500);
 	add_topic("estimator_rng_hgt_bias", 500);
 	add_topic("estimator_ev_pos_bias", 500);
-	add_topic("estimator_event_flags", 0);
 	add_topic("estimator_gps_status", 1000);
 	add_topic("estimator_innovation_test_ratios", 500);
 	add_topic("estimator_innovation_variances", 500);
@@ -179,7 +178,6 @@ void LoggedTopics::add_default_topics()
 	add_optional_topic_multi("estimator_gnss_hgt_bias", 500, MAX_ESTIMATOR_INSTANCES);
 	add_optional_topic_multi("estimator_rng_hgt_bias", 500, MAX_ESTIMATOR_INSTANCES);
 	add_optional_topic_multi("estimator_ev_pos_bias", 500, MAX_ESTIMATOR_INSTANCES);
-	add_optional_topic_multi("estimator_event_flags", 0, MAX_ESTIMATOR_INSTANCES);
 	add_optional_topic_multi("estimator_gps_status", 1000, MAX_ESTIMATOR_INSTANCES);
 	add_optional_topic_multi("estimator_innovation_test_ratios", 500, MAX_ESTIMATOR_INSTANCES);
 	add_optional_topic_multi("estimator_innovation_variances", 500, MAX_ESTIMATOR_INSTANCES);
@@ -266,7 +264,6 @@ void LoggedTopics::add_default_topics()
 	add_topic("estimator_gnss_hgt_bias");
 	add_topic("estimator_rng_hgt_bias");
 	add_topic("estimator_ev_pos_bias");
-	add_topic("estimator_event_flags");
 	add_topic("estimator_gps_status");
 	add_topic("estimator_innovation_test_ratios");
 	add_topic("estimator_innovation_variances");
