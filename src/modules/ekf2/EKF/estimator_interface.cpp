@@ -364,6 +364,7 @@ void EstimatorInterface::setOpticalFlowData(const flowSample &flow)
 
 		flowSample optflow_sample_new{flow};
 		optflow_sample_new.time_us = time_us;
+		optflow_sample_new.gyro_xyz.setNaN();
 
 		_flow_buffer->push(optflow_sample_new);
 
