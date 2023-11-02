@@ -122,6 +122,8 @@ private:
 	uint8_t _quality_prev{0};
 	uint8_t _raw_data_sum_prev{0};
 
+	uint8_t _resolution{0};
+
 	int _failure_count{0};
 	int _discard_reading{0};
 

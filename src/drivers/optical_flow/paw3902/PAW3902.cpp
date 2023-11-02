@@ -111,7 +111,7 @@ void PAW3902::print_status()
 	perf_print_counter(_mode_change_bright_perf);
 	perf_print_counter(_mode_change_low_light_perf);
 	perf_print_counter(_mode_change_super_low_light_perf);
-	perf_print_counter(_no_motion_interrupt_perf);
+	PX4_INFO_RAW("Resolution %" PRIu8 "\n", _resolution);
 }
 
 int PAW3902::probe()
@@ -496,6 +496,8 @@ void PAW3902::RunImpl()
 					Reset();
 				}
 			}
+
+			_resolution = RegisterRead(Register::Resolution);
 		}
 
 		break;
