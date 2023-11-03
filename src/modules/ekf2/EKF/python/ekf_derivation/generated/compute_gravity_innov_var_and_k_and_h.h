@@ -16,8 +16,8 @@ namespace sym {
  * Symbolic function: compute_gravity_innov_var_and_k_and_h
  *
  * Args:
- *     state: Matrix25_1
- *     P: Matrix24_24
+ *     state: Matrix26_1
+ *     P: Matrix25_25
  *     meas: Matrix31
  *     R: Scalar
  *     epsilon: Scalar
@@ -25,21 +25,21 @@ namespace sym {
  * Outputs:
  *     innov: Matrix31
  *     innov_var: Matrix31
- *     Kx: Matrix24_1
- *     Ky: Matrix24_1
- *     Kz: Matrix24_1
+ *     Kx: Matrix25_1
+ *     Ky: Matrix25_1
+ *     Kz: Matrix25_1
  */
 template <typename Scalar>
-void ComputeGravityInnovVarAndKAndH(const matrix::Matrix<Scalar, 25, 1>& state,
-                                    const matrix::Matrix<Scalar, 24, 24>& P,
+void ComputeGravityInnovVarAndKAndH(const matrix::Matrix<Scalar, 26, 1>& state,
+                                    const matrix::Matrix<Scalar, 25, 25>& P,
                                     const matrix::Matrix<Scalar, 3, 1>& meas, const Scalar R,
                                     const Scalar epsilon,
                                     matrix::Matrix<Scalar, 3, 1>* const innov = nullptr,
                                     matrix::Matrix<Scalar, 3, 1>* const innov_var = nullptr,
-                                    matrix::Matrix<Scalar, 24, 1>* const Kx = nullptr,
-                                    matrix::Matrix<Scalar, 24, 1>* const Ky = nullptr,
-                                    matrix::Matrix<Scalar, 24, 1>* const Kz = nullptr) {
-  // Total ops: 373
+                                    matrix::Matrix<Scalar, 25, 1>* const Kx = nullptr,
+                                    matrix::Matrix<Scalar, 25, 1>* const Ky = nullptr,
+                                    matrix::Matrix<Scalar, 25, 1>* const Kz = nullptr) {
+  // Total ops: 385
 
   // Input arrays
 
@@ -103,7 +103,7 @@ void ComputeGravityInnovVarAndKAndH(const matrix::Matrix<Scalar, 25, 1>& state,
   }
 
   if (Kx != nullptr) {
-    matrix::Matrix<Scalar, 24, 1>& _kx = (*Kx);
+    matrix::Matrix<Scalar, 25, 1>& _kx = (*Kx);
 
     _kx(0, 0) = _tmp28 * (P(0, 1) * _tmp13 + P(0, 2) * _tmp14);
     _kx(1, 0) = _tmp28 * (P(1, 2) * _tmp14 + _tmp16);
@@ -129,10 +129,11 @@ void ComputeGravityInnovVarAndKAndH(const matrix::Matrix<Scalar, 25, 1>& state,
     _kx(21, 0) = _tmp28 * (P(21, 1) * _tmp13 + P(21, 2) * _tmp14);
     _kx(22, 0) = _tmp28 * (P(22, 1) * _tmp13 + P(22, 2) * _tmp14);
     _kx(23, 0) = _tmp28 * (P(23, 1) * _tmp13 + P(23, 2) * _tmp14);
+    _kx(24, 0) = _tmp28 * (P(24, 1) * _tmp13 + P(24, 2) * _tmp14);
   }
 
   if (Ky != nullptr) {
-    matrix::Matrix<Scalar, 24, 1>& _ky = (*Ky);
+    matrix::Matrix<Scalar, 25, 1>& _ky = (*Ky);
 
     _ky(0, 0) = _tmp29 * (P(0, 2) * _tmp19 + _tmp21);
     _ky(1, 0) = _tmp29 * (P(1, 0) * _tmp18 + P(1, 2) * _tmp19);
@@ -158,10 +159,11 @@ void ComputeGravityInnovVarAndKAndH(const matrix::Matrix<Scalar, 25, 1>& state,
     _ky(21, 0) = _tmp29 * (P(21, 0) * _tmp18 + P(21, 2) * _tmp19);
     _ky(22, 0) = _tmp29 * (P(22, 0) * _tmp18 + P(22, 2) * _tmp19);
     _ky(23, 0) = _tmp29 * (P(23, 0) * _tmp18 + P(23, 2) * _tmp19);
+    _ky(24, 0) = _tmp29 * (P(24, 0) * _tmp18 + P(24, 2) * _tmp19);
   }
 
   if (Kz != nullptr) {
-    matrix::Matrix<Scalar, 24, 1>& _kz = (*Kz);
+    matrix::Matrix<Scalar, 25, 1>& _kz = (*Kz);
 
     _kz(0, 0) = _tmp30 * (P(0, 1) * _tmp24 + _tmp26);
     _kz(1, 0) = _tmp30 * (P(1, 0) * _tmp23 + _tmp25);
@@ -187,6 +189,7 @@ void ComputeGravityInnovVarAndKAndH(const matrix::Matrix<Scalar, 25, 1>& state,
     _kz(21, 0) = _tmp30 * (P(21, 0) * _tmp23 + P(21, 1) * _tmp24);
     _kz(22, 0) = _tmp30 * (P(22, 0) * _tmp23 + P(22, 1) * _tmp24);
     _kz(23, 0) = _tmp30 * (P(23, 0) * _tmp23 + P(23, 1) * _tmp24);
+    _kz(24, 0) = _tmp30 * (P(24, 0) * _tmp23 + P(24, 1) * _tmp24);
   }
 }  // NOLINT(readability/fn_size)
 

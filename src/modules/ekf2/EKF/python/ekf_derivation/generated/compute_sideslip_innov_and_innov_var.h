@@ -16,8 +16,8 @@ namespace sym {
  * Symbolic function: compute_sideslip_innov_and_innov_var
  *
  * Args:
- *     state: Matrix25_1
- *     P: Matrix24_24
+ *     state: Matrix26_1
+ *     P: Matrix25_25
  *     R: Scalar
  *     epsilon: Scalar
  *
@@ -26,8 +26,8 @@ namespace sym {
  *     innov_var: Scalar
  */
 template <typename Scalar>
-void ComputeSideslipInnovAndInnovVar(const matrix::Matrix<Scalar, 25, 1>& state,
-                                     const matrix::Matrix<Scalar, 24, 24>& P, const Scalar R,
+void ComputeSideslipInnovAndInnovVar(const matrix::Matrix<Scalar, 26, 1>& state,
+                                     const matrix::Matrix<Scalar, 25, 25>& P, const Scalar R,
                                      const Scalar epsilon, Scalar* const innov = nullptr,
                                      Scalar* const innov_var = nullptr) {
   // Total ops: 235

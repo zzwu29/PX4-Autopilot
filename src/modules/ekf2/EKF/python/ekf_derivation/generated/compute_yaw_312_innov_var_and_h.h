@@ -16,20 +16,20 @@ namespace sym {
  * Symbolic function: compute_yaw_312_innov_var_and_h
  *
  * Args:
- *     state: Matrix25_1
- *     P: Matrix24_24
+ *     state: Matrix26_1
+ *     P: Matrix25_25
  *     R: Scalar
  *     epsilon: Scalar
  *
  * Outputs:
  *     innov_var: Scalar
- *     H: Matrix24_1
+ *     H: Matrix25_1
  */
 template <typename Scalar>
-void ComputeYaw312InnovVarAndH(const matrix::Matrix<Scalar, 25, 1>& state,
-                               const matrix::Matrix<Scalar, 24, 24>& P, const Scalar R,
+void ComputeYaw312InnovVarAndH(const matrix::Matrix<Scalar, 26, 1>& state,
+                               const matrix::Matrix<Scalar, 25, 25>& P, const Scalar R,
                                const Scalar epsilon, Scalar* const innov_var = nullptr,
-                               matrix::Matrix<Scalar, 24, 1>* const H = nullptr) {
+                               matrix::Matrix<Scalar, 25, 1>* const H = nullptr) {
   // Total ops: 53
 
   // Input arrays
@@ -63,7 +63,7 @@ void ComputeYaw312InnovVarAndH(const matrix::Matrix<Scalar, 25, 1>& state,
   }
 
   if (H != nullptr) {
-    matrix::Matrix<Scalar, 24, 1>& _h = (*H);
+    matrix::Matrix<Scalar, 25, 1>& _h = (*H);
 
     _h.setZero();
 

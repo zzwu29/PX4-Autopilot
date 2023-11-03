@@ -16,22 +16,22 @@ namespace sym {
  * Symbolic function: compute_mag_declination_pred_innov_var_and_h
  *
  * Args:
- *     state: Matrix25_1
- *     P: Matrix24_24
+ *     state: Matrix26_1
+ *     P: Matrix25_25
  *     R: Scalar
  *     epsilon: Scalar
  *
  * Outputs:
  *     pred: Scalar
  *     innov_var: Scalar
- *     H: Matrix24_1
+ *     H: Matrix25_1
  */
 template <typename Scalar>
-void ComputeMagDeclinationPredInnovVarAndH(const matrix::Matrix<Scalar, 25, 1>& state,
-                                           const matrix::Matrix<Scalar, 24, 24>& P, const Scalar R,
+void ComputeMagDeclinationPredInnovVarAndH(const matrix::Matrix<Scalar, 26, 1>& state,
+                                           const matrix::Matrix<Scalar, 25, 25>& P, const Scalar R,
                                            const Scalar epsilon, Scalar* const pred = nullptr,
                                            Scalar* const innov_var = nullptr,
-                                           matrix::Matrix<Scalar, 24, 1>* const H = nullptr) {
+                                           matrix::Matrix<Scalar, 25, 1>* const H = nullptr) {
   // Total ops: 22
 
   // Input arrays
@@ -59,7 +59,7 @@ void ComputeMagDeclinationPredInnovVarAndH(const matrix::Matrix<Scalar, 25, 1>& 
   }
 
   if (H != nullptr) {
-    matrix::Matrix<Scalar, 24, 1>& _h = (*H);
+    matrix::Matrix<Scalar, 25, 1>& _h = (*H);
 
     _h.setZero();
 

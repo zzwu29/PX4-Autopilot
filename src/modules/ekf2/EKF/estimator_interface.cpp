@@ -368,6 +368,7 @@ void EstimatorInterface::setOpticalFlowData(const flowSample &flow)
 
 		flowSample optflow_sample_new{flow};
 		optflow_sample_new.time_us = time_us;
+		optflow_sample_new.flow_xy_rad *= 0.82f;
 
 		_flow_buffer->push(optflow_sample_new);
 
