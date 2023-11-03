@@ -774,6 +774,7 @@ void Ekf::fuse(const VectorState &K, float innovation)
 #if defined(CONFIG_EKF2_WIND)
 	_state.wind_vel -= K.slice<State::wind_vel.dof, 1>(State::wind_vel.idx, 0) * innovation;
 #endif // CONFIG_EKF2_WIND
+	_state.terrain_vpos -= (K.slice<State::terrain_vpos.dof, 1>(State::terrain_vpos.idx, 0) * innovation)(0, 0);
 }
 
 void Ekf::uncorrelateQuatFromOtherStates()

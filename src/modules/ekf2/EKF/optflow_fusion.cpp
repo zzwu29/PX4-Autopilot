@@ -170,7 +170,7 @@ float Ekf::predictFlowRange()
 
 	// calculate the height above the ground of the optical flow camera. Since earth frame is NED
 	// a positive offset in earth frame leads to a smaller height above the ground.
-	const float height_above_gnd_est = math::max(_terrain_vpos - _state.pos(2) - pos_offset_earth(2), fmaxf(_params.rng_gnd_clearance, 0.01f));
+	const float height_above_gnd_est = math::max(_state.terrain_vpos - _state.pos(2) - pos_offset_earth(2), fmaxf(_params.rng_gnd_clearance, 0.01f));
 
 	// calculate range from focal point to centre of image
 	return height_above_gnd_est / _R_to_earth(2, 2); // absolute distance to the frame region in view

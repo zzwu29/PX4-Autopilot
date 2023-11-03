@@ -68,7 +68,8 @@ State = Values(
     accel_bias = sf.V3(),
     mag_I = sf.V3(),
     mag_B = sf.V3(),
-    wind_vel = sf.V2()
+    wind_vel = sf.V2(),
+    terrain_vpos = sf.V1()
 )
 
 if args.disable_mag:
@@ -132,7 +133,8 @@ def predict_covariance(
         accel_bias = sf.V3.symbolic("delta_a_b"),
         mag_I = sf.V3.symbolic("mag_I"),
         mag_B = sf.V3.symbolic("mag_B"),
-        wind_vel = sf.V2.symbolic("wind_vel")
+        wind_vel = sf.V2.symbolic("wind_vel"),
+        terrain_vpos = sf.V1.symbolic("terrain_vpos")
     )
 
     if args.disable_mag:
@@ -473,18 +475,20 @@ def compute_mag_declination_pred_innov_var_and_h(
 
     return (meas_pred, innov_var, H.T)
 
-def predict_opt_flow(state, distance, epsilon):
+def predict_opt_flow(state, epsilon):
     R_to_body = state["quat_nominal"].inverse()
 
     # Calculate earth relative velocity in a non-rotating sensor frame
     rel_vel_sensor = R_to_body * state["vel"]
+    hagl = state["terrain_vpos"][0] - state["pos"][2]
+    dist = hagl / state["quat_nominal"].to_rotation_matrix()[2, 2]
 
     # Divide by range to get predicted angular LOS rates relative to X and Y
     # axes. Note these are rates in a non-rotating sensor frame
     flow_pred = sf.V2()
-    flow_pred[0] =  rel_vel_sensor[1] / distance
-    flow_pred[1] = -rel_vel_sensor[0] / distance
-    flow_pred = add_epsilon_sign(flow_pred, distance, epsilon)
+    flow_pred[0] =  rel_vel_sensor[1] / dist
+    flow_pred[1] = -rel_vel_sensor[0] / dist
+    flow_pred = add_epsilon_sign(flow_pred, hagl, epsilon)
 
     return flow_pred
 
@@ -492,12 +496,11 @@ def predict_opt_flow(state, distance, epsilon):
 def compute_flow_xy_innov_var_and_hx(
         state: VState,
         P: MTangent,
-        distance: sf.Scalar,
         R: sf.Scalar,
         epsilon: sf.Scalar
 ) -> (sf.V2, VTangent):
     state = vstate_to_state(state)
-    meas_pred = predict_opt_flow(state, distance, epsilon);
+    meas_pred = predict_opt_flow(state, epsilon);
 
     innov_var = sf.V2()
     Hx = sf.V1(meas_pred[0]).jacobian(state)
@@ -510,12 +513,11 @@ def compute_flow_xy_innov_var_and_hx(
 def compute_flow_y_innov_var_and_h(
         state: VState,
         P: MTangent,
-        distance: sf.Scalar,
         R: sf.Scalar,
         epsilon: sf.Scalar
 ) -> (sf.Scalar, VTangent):
     state = vstate_to_state(state)
-    meas_pred = predict_opt_flow(state, distance, epsilon);
+    meas_pred = predict_opt_flow(state, epsilon);
 
     Hy = sf.V1(meas_pred[1]).jacobian(state)
     innov_var = (Hy * P * Hy.T + R)[0,0]

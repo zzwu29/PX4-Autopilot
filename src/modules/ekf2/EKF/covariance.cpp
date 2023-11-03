@@ -99,6 +99,7 @@ void Ekf::initialiseCovariance()
 #if defined(CONFIG_EKF2_WIND)
 	resetWindCov();
 #endif // CONFIG_EKF2_WIND
+	P(State::terrain_vpos.idx, State::terrain_vpos.idx) = sq(1.1f);
 }
 
 void Ekf::predictCovariance(const imuSample &imu_delayed)
@@ -206,6 +207,10 @@ void Ekf::predictCovariance(const imuSample &imu_delayed)
 		}
 	}
 #endif // CONFIG_EKF2_WIND
+	if (_control_status.flags.opt_flow) {
+		const float terrain_nsd = 0.1f;
+		P(State::terrain_vpos.idx, State::terrain_vpos.idx) += sq(terrain_nsd) * dt;
+	}
 
 	// covariance matrix is symmetrical, so copy upper half to lower half
 	for (unsigned row = 0; row < State::size; row++) {
