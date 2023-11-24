@@ -247,6 +247,10 @@ void Ekf::constrainStates()
 #if defined(CONFIG_EKF2_WIND)
 	_state.wind_vel = matrix::constrain(_state.wind_vel, -100.0f, 100.0f);
 #endif // CONFIG_EKF2_WIND
+
+#if defined(CONFIG_EKF2_RANGE_FINDER) || defined(CONFIG_EKF2_OPTICAL_FLOW)
+	_state.terrain_vpos = matrix::constrain(_state.terrain_vpos, -1.e6f, 1.e6f);
+#endif // CONFIG_EKF2_RANGE_FINDER || CONFIG_EKF2_OPTICAL_FLOW
 }
 
 #if defined(CONFIG_EKF2_BARO_COMPENSATION)

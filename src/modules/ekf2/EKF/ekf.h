@@ -98,7 +98,7 @@ public:
 	uint8_t getTerrainEstimateSensorBitfield() const { return _hagl_sensor_status.value; }
 
 	// get the estimated terrain vertical position relative to the NED origin
-	float getTerrainVertPos() const { return _terrain_vpos; };
+	float getTerrainVertPos() const { return _state.terrain_vpos; };
 
 	// get the number of times the vertical terrain position has been reset
 	uint8_t getTerrainVertPosResetCounter() const { return _terrain_vpos_reset_counter; };

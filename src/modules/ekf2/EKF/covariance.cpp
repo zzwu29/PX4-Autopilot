@@ -99,7 +99,10 @@ void Ekf::initialiseCovariance()
 #if defined(CONFIG_EKF2_WIND)
 	resetWindCov();
 #endif // CONFIG_EKF2_WIND
-	P(State::terrain_vpos.idx, State::terrain_vpos.idx) = sq(1.1f);
+
+#if defined(CONFIG_EKF2_OPTICAL_FLOW) || defined(CONFIG_EKF2_RANGE_FINDER)
+	P(State::terrain_vpos.idx, State::terrain_vpos.idx) = sq(_params.rng_gnd_clearance);
+#endif // CONFIG_EKF2_OPTICAL_FLOW || CONFIG_EKF2_RANGE_FINDER
 }
 
 void Ekf::predictCovariance(const imuSample &imu_delayed)
@@ -207,10 +210,18 @@ void Ekf::predictCovariance(const imuSample &imu_delayed)
 		}
 	}
 #endif // CONFIG_EKF2_WIND
-	if (_control_status.flags.opt_flow) {
-		const float terrain_nsd = 0.1f;
-		P(State::terrain_vpos.idx, State::terrain_vpos.idx) += sq(terrain_nsd) * dt;
+
+#if defined(CONFIG_EKF2_OPTICAL_FLOW) || defined(CONFIG_EKF2_RANGE_FINDER)
+	if (_control_status.flags.opt_flow || _control_status.flags.rng_hgt) {
+		// process noise due to errors in vehicle height estimate
+		const float var_static = sq(imu_delayed.delta_vel_dt * _params.terrain_p_noise);
+
+		// process noise due to terrain gradient
+		const float var_dynamic = sq(imu_delayed.delta_vel_dt * _params.terrain_gradient) * (sq(_state.vel(0)) + sq(_state.vel(1)));
+
+		P(State::terrain_vpos.idx, State::terrain_vpos.idx) += var_static + var_dynamic;
 	}
+#endif // CONFIG_EKF2_OPTICAL_FLOW || CONFIG_EKF2_RANGE_FINDER
 
 	// covariance matrix is symmetrical, so copy upper half to lower half
 	for (unsigned row = 0; row < State::size; row++) {
@@ -332,7 +343,16 @@ void Ekf::fixCovarianceErrors(bool force_symmetry)
 		}
 	}
 #endif // CONFIG_EKF2_WIND
+
+#if defined(CONFIG_EKF2_OPTICAL_FLOW) || defined(CONFIG_EKF2_RANGE_FINDER)
+	if (!_control_status.flags.rng_hgt && !_control_status.flags.opt_flow) {
+		P.uncorrelateCovarianceSetVariance<State::terrain_vpos.dof>(State::terrain_vpos.idx, 0.f);
+
+	} else {
+		constrainStateVar(State::terrain_vpos, 0.f, 1e4f);
+	}
 }
+#endif // CONFIG_EKF2_OPTICAL_FLOW || CONFIG_EKF2_RANGE_FINDER
 
 void Ekf::constrainStateVar(const IdxDof &state, float min, float max)
 {

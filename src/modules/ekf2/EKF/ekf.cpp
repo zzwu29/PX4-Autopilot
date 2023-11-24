@@ -71,7 +71,10 @@ void Ekf::reset()
 #if defined(CONFIG_EKF2_WIND)
 	_state.wind_vel.setZero();
 #endif // CONFIG_EKF2_WIND
-	_state.terrain_vpos = 5.f;
+
+#if defined(CONFIG_EKF2_RANGE_FINDER) || defined(CONFIG_EKF2_OPTICAL_FLOW)
+	_state.terrain_vpos = _state.pos(2) + _params.rng_gnd_clearance;
+#endif // CONFIG_EKF2_RANGE_FINDER || CONFIG_EKF2_OPTICAL_FLOW
 
 #if defined(CONFIG_EKF2_RANGE_FINDER)
 	_range_sensor.setPitchOffset(_params.rng_sens_pitch);
