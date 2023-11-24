@@ -423,10 +423,8 @@ struct parameters {
 	float range_delay_ms{5.0f};             ///< range finder measurement delay relative to the IMU (mSec)
 	float range_noise{0.1f};                ///< observation noise for range finder measurements (m)
 	float range_innov_gate{5.0f};           ///< range finder fusion innovation consistency gate size (STD)
-	float rng_hgt_bias_nsd{0.13f};          ///< process noise for range height bias estimation (m/s/sqrt(Hz))
 	float rng_sens_pitch{0.0f};             ///< Pitch offset of the range sensor (rad). Sensor points out along Z axis when offset is zero. Positive rotation is RH about Y axis.
 	float range_noise_scaler{0.0f};         ///< scaling from range measurement to noise (m/m)
-	const float vehicle_variance_scaler{0.0f};      ///< gain applied to vehicle height variance used in calculation of height above ground observation variance
 	float max_hagl_for_range_aid{5.0f};     ///< maximum height above ground for which we allow to use the range finder as height source (if rng_control == 1)
 	float max_vel_for_range_aid{1.0f};      ///< maximum ground velocity for which we allow to use the range finder as height source (if rng_control == 1)
 	float range_aid_innov_gate{1.0f};       ///< gate size used for innovation consistency checks for range aid fusion

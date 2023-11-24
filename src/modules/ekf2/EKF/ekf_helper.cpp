@@ -207,13 +207,9 @@ void Ekf::resetVerticalPositionTo(const float new_vert_pos, float new_vert_pos_v
 #if defined(CONFIG_EKF2_GNSS)
 	_gps_hgt_b_est.setBias(_gps_hgt_b_est.getBias() + delta_z);
 #endif // CONFIG_EKF2_GNSS
-#if defined(CONFIG_EKF2_RANGE_FINDER)
-	_rng_hgt_b_est.setBias(_rng_hgt_b_est.getBias() + delta_z);
-#endif // CONFIG_EKF2_RANGE_FINDER
-
-#if defined(CONFIG_EKF2_TERRAIN)
-	terrainHandleVerticalPositionReset(delta_z);
-#endif
+#if defined(CONFIG_EKF2_RANGE_FINDER) || defined(CONFIG_EKF2_OPTICAL_FLOW)
+	_state.terrain_vpos += delta_z;
+#endif // CONFIG_EKF2_RANGE_FINDER || CONFIG_EKF2_OPTICAL_FLOW
 
 	// Reset the timout timer
 	_time_last_hgt_fuse = _time_delayed_us;

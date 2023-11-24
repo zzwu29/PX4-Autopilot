@@ -112,17 +112,8 @@ void Ekf::controlRangeHeightFusion()
 						   innov_gate,
 						   aid_src);
 
-		// update the bias estimator before updating the main filter but after
-		// using its current state to compute the vertical position innovation
-		if (measurement_valid && _range_sensor.isDataHealthy()) {
-			bias_est.setMaxStateNoise(sqrtf(measurement_var));
-			bias_est.setProcessNoiseSpectralDensity(_params.rng_hgt_bias_nsd);
-			bias_est.fuseBias(measurement - (-_state.pos(2)), measurement_var + P(State::pos.idx + 2, State::pos.idx + 2));
-		}
-
 		// determine if we should use height aiding
-		const bool do_conditional_range_aid = (_params.rng_ctrl == RngCtrl::CONDITIONAL) && isConditionalRangeAidSuitable();
-		const bool continuing_conditions_passing = ((_params.rng_ctrl == RngCtrl::ENABLED) || do_conditional_range_aid)
+		const bool continuing_conditions_passing = (_params.rng_ctrl == RngCtrl::ENABLED);
 				&& measurement_valid
 				&& _range_sensor.isDataHealthy();
 
@@ -142,8 +133,8 @@ void Ekf::controlRangeHeightFusion()
 					ECL_WARN("%s height fusion reset required, all height sources failing", HGT_SRC_NAME);
 
 					_information_events.flags.reset_hgt_to_rng = true;
-					resetVerticalPositionTo(-(measurement - bias_est.getBias()));
-					bias_est.setBias(_state.pos(2) + measurement);
+					resetVerticalPositionTo(-(measurement - _state.terrain_vpos));
+					_state.terrain_vpos = _state.pos(2) + measurement;
 
 					// reset vertical velocity
 					resetVerticalVelocityToZero();
@@ -198,47 +189,6 @@ void Ekf::controlRangeHeightFusion()
 		ECL_WARN("stopping %s height fusion, no data", HGT_SRC_NAME);
 		stopRngHgtFusion();
 	}
-}
-
-bool Ekf::isConditionalRangeAidSuitable()
-{
-#if defined(CONFIG_EKF2_TERRAIN)
-	if (_control_status.flags.in_air
-	    && _range_sensor.isHealthy()
-	    && isTerrainEstimateValid()) {
-		// check if we can use range finder measurements to estimate height, use hysteresis to avoid rapid switching
-		// Note that the 0.7 coefficients and the innovation check are arbitrary values but work well in practice
-		float range_hagl_max = _params.max_hagl_for_range_aid;
-		float max_vel_xy = _params.max_vel_for_range_aid;
-
-		const float hagl_innov = _aid_src_terrain_range_finder.innovation;
-		const float hagl_innov_var = _aid_src_terrain_range_finder.innovation_variance;
-
-		const float hagl_test_ratio = (hagl_innov * hagl_innov / (sq(_params.range_aid_innov_gate) * hagl_innov_var));
-
-		bool is_hagl_stable = (hagl_test_ratio < 1.f);
-
-		if (!_control_status.flags.rng_hgt) {
-			range_hagl_max = 0.7f * _params.max_hagl_for_range_aid;
-			max_vel_xy = 0.7f * _params.max_vel_for_range_aid;
-			is_hagl_stable = (hagl_test_ratio < 0.01f);
-		}
-
-		const float range_hagl = _terrain_vpos - _state.pos(2);
-
-		const bool is_in_range = (range_hagl < range_hagl_max);
-
-		bool is_below_max_speed = true;
-
-		if (isHorizontalAidingActive()) {
-			is_below_max_speed = !_state.vel.xy().longerThan(max_vel_xy);
-		}
-
-		return is_in_range && is_hagl_stable && is_below_max_speed;
-	}
-#endif // CONFIG_EKF2_TERRAIN
-
-	return false;
 }
 
 void Ekf::stopRngHgtFusion()
