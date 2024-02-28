@@ -62,7 +62,11 @@ void Ekf::controlMag3DFusion(const magSample &mag_sample, const bool common_star
 	_control_status.flags.mag_3D = (_params.mag_fusion_type == MagFuseType::AUTO)
 				       && _control_status.flags.mag
 				       && _control_status.flags.mag_aligned_in_flight
-				       && (_control_status.flags.mag_heading_consistent || !_control_status.flags.gps)
+				       && !_control_status.flags.mag_fault
+				       && !_control_status.flags.ev_yaw
+				       && !_control_status.flags.gps_yaw;
+	_control_status.flags.mag_hdg = ((_params.mag_fusion_type == MagFuseType::HEADING) || (_params.mag_fusion_type == MagFuseType::AUTO && !_control_status.flags.mag_3D))
+				       && _control_status.flags.mag
 				       && !_control_status.flags.mag_fault
 				       && !_control_status.flags.ev_yaw
 				       && !_control_status.flags.gps_yaw;
@@ -102,14 +106,14 @@ void Ekf::controlMag3DFusion(const magSample &mag_sample, const bool common_star
 					// states for the first few observations.
 					fuseDeclination(0.02f);
 					_mag_decl_cov_reset = true;
-					fuseMag(mag_sample.mag, aid_src, false);
+					fuseMag(mag_sample.mag, aid_src, false, false);
 
 				} else {
 					// The normal sequence is to fuse the magnetometer data first before fusing
 					// declination angle at a higher uncertainty to allow some learning of
 					// declination angle over time.
-					const bool update_all_states = _control_status.flags.mag_3D;
-					fuseMag(mag_sample.mag, aid_src, update_all_states);
+					const bool update_all_states = _control_status.flags.mag_3D || _control_status.flags.mag_hdg;
+					fuseMag(mag_sample.mag, aid_src, update_all_states, _control_status.flags.mag_hdg);
 
 					if (_control_status.flags.mag_dec) {
 						fuseDeclination(0.5f);
@@ -176,7 +180,7 @@ void Ekf::controlMag3DFusion(const magSample &mag_sample, const bool common_star
 
 			} else {
 				ECL_INFO("starting %s fusion", AID_SRC_NAME);
-				fuseMag(mag_sample.mag, aid_src, false);
+				fuseMag(mag_sample.mag, aid_src, false, false);
 			}
 
 			aid_src.time_last_fuse = _time_delayed_us;

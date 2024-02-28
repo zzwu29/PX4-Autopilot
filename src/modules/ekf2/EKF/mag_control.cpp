@@ -47,9 +47,6 @@ void Ekf::controlMagFusion()
 		_control_status.flags.mag_aligned_in_flight = false;
 	}
 
-	checkYawAngleObservability();
-	checkMagHeadingConsistency();
-
 	if (_params.mag_fusion_type == MagFuseType::NONE) {
 		stopMagFusion();
 		stopMagHdgFusion();
@@ -106,7 +103,7 @@ void Ekf::controlMagFusion()
 		}
 
 		controlMag3DFusion(mag_sample, starting_conditions_passing, _aid_src_mag);
-		controlMagHeadingFusion(mag_sample, starting_conditions_passing, _aid_src_mag_heading);
+		// controlMagHeadingFusion(mag_sample, starting_conditions_passing, _aid_src_mag_heading);
 
 	} else if (!isNewestSampleRecent(_time_last_mag_buffer_push, 2 * MAG_MAX_INTERVAL)) {
 		// No data anymore. Stop until it comes back.
@@ -219,36 +216,6 @@ void Ekf::resetMagStates(const Vector3f &mag, bool reset_heading)
 	if (_control_status.flags.in_air) {
 		_control_status.flags.mag_aligned_in_flight = true;
 		_flt_mag_align_start_time = _time_delayed_us;
-	}
-}
-
-void Ekf::checkYawAngleObservability()
-{
-	if (_control_status.flags.gps) {
-		// Check if there has been enough change in horizontal velocity to make yaw observable
-		// Apply hysteresis to check to avoid rapid toggling
-		if (_yaw_angle_observable) {
-			_yaw_angle_observable = _accel_lpf_NE.norm() > _params.mag_acc_gate;
-
-		} else {
-			_yaw_angle_observable = _accel_lpf_NE.norm() > _params.mag_acc_gate * 2.f;
-		}
-
-	} else {
-		_yaw_angle_observable = false;
-	}
-}
-
-void Ekf::checkMagHeadingConsistency()
-{
-	if (fabsf(_mag_heading_innov_lpf.getState()) < _params.mag_heading_noise) {
-		if (_yaw_angle_observable) {
-			// yaw angle must be observable to consider consistency
-			_control_status.flags.mag_heading_consistent = true;
-		}
-
-	} else {
-		_control_status.flags.mag_heading_consistent = false;
 	}
 }
 

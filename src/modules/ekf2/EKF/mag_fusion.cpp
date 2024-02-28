@@ -51,7 +51,7 @@
 
 #include <mathlib/mathlib.h>
 
-bool Ekf::fuseMag(const Vector3f &mag, estimator_aid_source3d_s &aid_src_mag, bool update_all_states)
+bool Ekf::fuseMag(const Vector3f &mag, estimator_aid_source3d_s &aid_src_mag, bool update_all_states, bool mag_heading)
 {
 	// XYZ Measurement uncertainty. Need to consider timing errors for fast rotations
 	const float R_MAG = math::max(sq(_params.mag_noise), sq(0.01f));
@@ -177,6 +177,17 @@ bool Ekf::fuseMag(const Vector3f &mag, estimator_aid_source3d_s &aid_src_mag, bo
 		}
 
 		VectorState Kfusion = P * H / aid_src_mag.innovation_variance[index];
+
+		if (mag_heading) {
+			// Modify the Kalman gain to zero the delta quaternion changes perpendicular to the down NED axis
+			// To do this, transform K from body to NED, zero the xy components and transform back to body frame.
+			// Transformation from body to NED of a delta quaternion in the tangent space is done using the adjoint
+			// at the current attitude (i.e.: the current rotation matrix)
+			Vector3f K_rot = Kfusion.slice<3, 1>(State::quat_nominal.idx, State::quat_nominal.idx);
+			Vector3f row = _R_to_earth.row(2);
+			K_rot = row * row.dot(K_rot);
+			Kfusion.slice<3, 1>(State::quat_nominal.idx, State::quat_nominal.idx) = K_rot;
+		}
 
 		if (!update_all_states) {
 			// zero non-mag Kalman gains if not updating all states
