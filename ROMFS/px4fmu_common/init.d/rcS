@@ -388,6 +388,7 @@ else
 		commander start
 
 		dshot start
+		pwm_input start
 		pwm_out start
 	fi
 

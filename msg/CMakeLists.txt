@@ -173,6 +173,7 @@ set(msg_files
 	RegisterExtComponentReply.msg
 	RegisterExtComponentRequest.msg
 	Rpm.msg
+	RpmControlStatus.msg
 	RtlStatus.msg
 	RtlTimeEstimate.msg
 	SatelliteInfo.msg
