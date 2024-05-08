@@ -1,0 +1,8 @@
+#!/bin/sh
+# @name Temporary Boat
+# @type Rover
+# @class Rover
+
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=boat_ocean}
+
+. ${R}etc/init.d-posix/airframes/4012_gz_boat_wam

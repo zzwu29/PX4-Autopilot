@@ -1,0 +1,37 @@
+#!/bin/sh
+# @name WAM Boat
+# @type Boat
+# @class Boat
+
+. ${R}etc/init.d/rc.boat_defaults
+
+PX4_SIMULATOR=${PX4_SIMULATOR:=gz}
+PX4_GZ_WORLD=${PX4_GZ_WORLD:=waves}
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=boat_wam}
+
+param set-default SIM_GZ_EN 1 # Gazebo bridge
+
+# Simulated sensors
+param set-default SENS_EN_GPSSIM 1
+param set-default SENS_EN_BAROSIM 1
+param set-default SENS_EN_MAGSIM 1
+param set-default SENS_EN_ARSPDSIM 0
+
+# Actuator mapping
+param set-default SIM_GZ_BM_FUNC1 101 # right boat motor
+param set-default SIM_GZ_BM_MIN1 0
+param set-default SIM_GZ_BM_MAX1 8000
+param set-default SIM_GZ_BM_DIS1 0
+
+param set-default SIM_GZ_BM_FUNC2 102 # left boat motor
+param set-default SIM_GZ_BM_MIN2 0
+param set-default SIM_GZ_BM_MAX2 8000
+param set-default SIM_GZ_BM_DIS2 0
+
+param set-default SIM_GZ_SV_FUNC1 201
+param set-default SIM_GZ_SV_FUNC2 202
+
+param set-default CA_AIRFRAME 5
+
+
+# param set-default SIM_GZ_BM_REV 1 # reverse right wheel

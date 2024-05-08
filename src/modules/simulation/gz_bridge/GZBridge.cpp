@@ -240,6 +240,11 @@ int GZBridge::init()
 		return PX4_ERROR;
 	}
 
+	if (!_mixing_interface_boat_motor.init(_model_name)) {
+		PX4_ERR("failed to init boat motor output");
+		return PX4_ERROR;
+	}
+
 	ScheduleNow();
 	return OK;
 }
@@ -331,7 +336,7 @@ int GZBridge::task_spawn(int argc, char *argv[])
 
 #if defined(ENABLE_LOCKSTEP_SCHEDULER)
 			// lockstep scheduler wait for initial clock set before returning
-			int sleep_count_limit = 10000;
+			int sleep_count_limit = 100000;
 
 			while ((instance->world_time_us() == 0) && sleep_count_limit > 0) {
 				// wait for first clock message
@@ -767,6 +772,7 @@ void GZBridge::Run()
 		_mixing_interface_esc.stop();
 		_mixing_interface_servo.stop();
 		_mixing_interface_wheel.stop();
+		_mixing_interface_boat_motor.stop();
 
 		exit_and_cleanup();
 		return;
@@ -783,6 +789,7 @@ void GZBridge::Run()
 		_mixing_interface_esc.updateParams();
 		_mixing_interface_servo.updateParams();
 		_mixing_interface_wheel.updateParams();
+		_mixing_interface_boat_motor.updateParams();
 	}
 
 	ScheduleDelayed(10_ms);
@@ -800,6 +807,9 @@ int GZBridge::print_status()
 
 	PX4_INFO_RAW("Wheel outputs:\n");
 	_mixing_interface_wheel.mixingOutput().printStatus();
+
+	PX4_INFO_RAW("Boat motor outputs: \n");
+	_mixing_interface_boat_motor.mixingOutput().printStatus();
 
 	return 0;
 }

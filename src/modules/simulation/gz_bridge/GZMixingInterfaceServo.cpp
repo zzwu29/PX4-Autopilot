@@ -65,7 +65,8 @@ bool GZMixingInterfaceServo::updateOutputs(bool stop_motors, uint16_t outputs[MA
 		if (_mixing_output.isFunctionSet(i)) {
 			gz::msgs::Double servo_output;
 			///TODO: Normalize output data
-			double output = (outputs[i] - 500) / 500.0;
+			// double output = (outputs[i] - 500) / 500.0;
+			double output = (((float)outputs[i] - 500.f) / 500.f) * 0.785398f;
 			// std::cout << "outputs[" << i << "]: " << outputs[i] << std::endl;
 			// std::cout << "  output: " << output << std::endl;
 			servo_output.set_data(output);

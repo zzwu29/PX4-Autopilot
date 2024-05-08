@@ -66,6 +66,9 @@ if(gz-transport_FOUND)
 			GZMixingInterfaceServo.hpp
 			GZMixingInterfaceWheel.cpp
 			GZMixingInterfaceWheel.hpp
+			GZMixingInterfaceBoatMotor.cpp
+			GZMixingInterfaceBoatMotor.hpp
+
 		DEPENDS
 			mixer_module
 			px4_work_queue
@@ -93,6 +96,7 @@ if(gz-transport_FOUND)
 		windy
 		baylands
   		lawn
+		waves
 	)
 
 	# find corresponding airframes

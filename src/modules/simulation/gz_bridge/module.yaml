@@ -34,3 +34,12 @@ actuator_output:
         max: { min: 0, max: 200, default: 200 }
         failsafe: { min: 0, max: 200 }
       num_channels: 2
+    - param_prefix: SIM_GZ_BM
+      group_label: 'BoatMotors'
+      channel_label: 'BoatMotors'
+      standard_params:
+        disarmed: { min: 0, max: 8000, default: 4000 }
+        min: { min: 0, max: 8000, default: 0 }
+        max: { min: 0, max: 8000, default: 8000 }
+        failsafe: { min: 0, max: 8000 }
+      num_channels: 2
