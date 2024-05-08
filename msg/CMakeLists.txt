@@ -53,6 +53,7 @@ set(msg_files
 	ArmingCheckRequest.msg
 	AutotuneAttitudeControlStatus.msg
 	BatteryStatus.msg
+	BoatDriveSetpoint.msg
 	Buffer128.msg
 	ButtonEvent.msg
 	CameraCapture.msg

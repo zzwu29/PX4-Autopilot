@@ -1,0 +1,266 @@
+module_name: Boat Drive
+
+parameters:
+  - group: Boat Drive
+    definitions:
+      BD_WHEEL_BASE:
+        description:
+          short: Wheel base
+          long: Distance from the center of the right wheel to the center of the left wheel
+        type: float
+        unit: m
+        min: 0.001
+        max: 100
+        increment: 0.001
+        decimal: 3
+        default: 0.5
+      BD_WHEEL_RADIUS:
+        description:
+          short: Wheel radius
+          long: Size of the wheel, half the diameter of the wheel
+        type: float
+        unit: m
+        min: 0.001
+        max: 100
+        increment: 0.001
+        decimal: 3
+        default: 0.1
+      BD_SPEED_SCALE:
+        description:
+          short: Manual speed scale
+        type: float
+        min: 0
+        max: 1
+        increment: 0.01
+        decimal: 2
+        default: 1
+      BT_CCTRL_EN:
+        description:
+          short: Enable cruise control
+        type: boolean
+        default: 1
+      BT_CCTRL_BTN:
+        description:
+          short: Button ID for cruise control toggle
+        type: int32
+        min: 0
+        max: 16
+        default: 0
+      BT_LACC_LIM:
+        description:
+          short: Lateral acceleration limit
+        type: float
+        unit: m/s^2
+        min: 0.0
+        max: 6.0
+        decimal: 1
+        default: 2.0
+      BT_LACC_SLEW:
+        description:
+          short: Lateral acceleration slew rate
+        type: float
+        min: 0.0
+        decimal: 1
+        default: 1.5
+      BT_LACC_P:
+        description:
+          short: Lateral acceleration controller proportional gain
+        type: float
+        min: 0.0
+        max: 2.0
+        decimal: 2
+        default: 1.0
+      BT_LACC_I:
+        description:
+          short: Speed controller integral gain
+        type: float
+        min: 0.0
+        max: 2.0
+        decimal: 2
+        default: 0.0
+      BT_LACC_IMAX:
+        description:
+          short: Lateral acceleration integral maximum value
+        type: float
+        unit: m/s^2
+        min: 0.0
+        max: 5.0
+        decimal: 1
+        default: 0.5
+      BT_YAWRATE_FF:
+        description:
+          short: Yaw rate feed forward gain
+        type: float
+        min: 0
+        max: 1
+        decimal: 2
+        default: 0.0
+      BT_LACC_OUTLIM:
+        description:
+          short: Lateral acceleration PI controller output limit
+        type: float
+        unit: m/s^2
+        min: 0.0
+        max: 10.0
+        decimal: 1
+        default: 1.0
+      BT_STR_GAIN:
+        description:
+          short: Trim steering gain
+        type: float
+        min: 0.01
+        max: 1.00
+        decimal: 2
+        default: 0.2
+      BT_STR_SLEW:
+        description:
+          short: Steering slew rate
+        type: float
+        min: 0.00
+        decimal: 2
+        default: 1.5
+      BT_STR_DZ:
+        description:
+          short: Steering deadzone compensation
+        type: float
+        min: 0
+        max: 1
+        decimal: 2
+        default: 0.3
+      BT_L1_PERIOD:
+        description:
+          short: L1 period
+        type: float
+        unit: s
+        min: 0.5
+        max: 50.0
+        decimal: 1
+        default: 25.0
+      BT_L1_DAMPING:
+        description:
+          short: L1 damping
+        type: float
+        min: 0.6
+        max: 0.9
+        decimal: 2
+        default: 0.9
+      BT_SPD_CRUISE:
+        description:
+          short: Default cruise speed
+        type: float
+        unit: m/s
+        min: 0.0
+        max: 50.0
+        decimal: 1
+        default: 7.0
+      BT_SPD_LIM:
+        description:
+          short: Speed limit
+        type: float
+        unit: m/s
+        min: 0.0
+        max: 50.0
+        decimal: 1
+        default: 17.0
+      BT_SPD_MAX:
+        description:
+          short: Maximum speed
+        type: float
+        unit: m/s
+        min: 1.0
+        max: 50.0
+        decimal: 1
+        default: 17.0
+      BT_SPD_IDLE:
+        description:
+          short: Idle speed
+        type: float
+        min: 0.0
+        max: 6.0
+        decimal: 1
+        default: 2.7
+      BT_SPD_SLEW:
+        description:
+          short: Speed slew rate
+        type: float
+        min: 0.0
+        decimal: 1
+        default: 3.0
+      BT_SPD_P:
+        description:
+          short: Speed controller proportional gain
+        type: float
+        min: 0.0
+        max: 2.0
+        decimal: 2
+        default: 1.0
+      BT_SPD_I:
+        description:
+          short: Speed controller integral gain
+        type: float
+        min: 0.0
+        max: 2.0
+        decimal: 2
+        default: 0.0
+      BT_SPD_IMAX:
+        description:
+          short: Speed integral maximum value
+        type: float
+        unit: m/s
+        min: 0.0
+        max: 20.0
+        decimal: 1
+        default: 2.0
+      BT_SPD_OUTLIM:
+        description:
+          short: Speed PI controller output limit
+        type: float
+        unit: m/s
+        min: 0.0
+        max: 20.0
+        decimal: 1
+        default: 5.0
+      BT_THR_LIM:
+        description:
+          short: Throttle limit
+        type: float
+        unit: norm
+        min: 0.0
+        max: 1.0
+        decimal: 2
+        default: 1.0
+      BT_THR_SLEW:
+        description:
+          short: Throttle slew rate
+        type: float
+        min: 0.0
+        decimal: 2
+        default: 1.0
+      BT_MAX_HERR:
+        description:
+          short: Max heading error for slowdown
+        type: float
+        min: 0.0
+        decimal: 2
+        default: 90.0
+      BT_MIN_HERR:
+        description:
+          short: Min heading error for full speed
+        type: float
+        min: 0.0
+        decimal: 2
+        default: 30.0
+      BT_MISSION_THR:
+        description:
+          short: Mission throttle setpoint
+        type: float
+        min: -1.0
+        decimal: 2
+        default: 0.8
+      BT_MIN_THR:
+        description:
+          short: Mission minimum slowdown parameter
+        type: float
+        min: 0.0
+        decimal: 2
+        default: 0.5
