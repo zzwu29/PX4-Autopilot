@@ -507,7 +507,6 @@ void sig_int_handler(int sig_num)
 	fflush(stdout);
 	printf("\nPX4 Exiting in sig_int_handler\n");
 	fflush(stdout);
-	px4_shutdown_request(0);
 	px4_daemon::Pxh::stop();
 	_exit_requested = true;
 }
