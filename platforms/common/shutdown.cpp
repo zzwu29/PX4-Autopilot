@@ -180,14 +180,6 @@ static void shutdown_worker(void *arg)
 
 	pthread_mutex_lock(&shutdown_mutex);
 
-	for (int i = 0; i < max_shutdown_hooks; ++i) {
-		if (shutdown_hooks[i]) {
-			if (!shutdown_hooks[i]()) {
-				done = false;
-			}
-		}
-	}
-
 	const hrt_abstime now = hrt_absolute_time();
 	const bool delay_elapsed = (now > shutdown_time_us);
 
