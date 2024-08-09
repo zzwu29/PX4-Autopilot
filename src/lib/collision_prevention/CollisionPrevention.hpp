@@ -79,9 +79,7 @@ public:
 	 * @param curr_pos, current vehicle position
 	 * @param curr_vel, current vehicle velocity
 	 */
-	void modifySetpoint(matrix::Vector2f &original_setpoint, const float max_speed,
-			    const matrix::Vector2f &curr_pos, const matrix::Vector2f &curr_vel);
-
+	void modifySetpoint(matrix::Vector2f &setpoint_accel, const matrix::Vector2f &setpoint_vel);
 protected:
 
 	obstacle_distance_s _obstacle_map_body_frame {};
@@ -105,6 +103,11 @@ protected:
 	 * @param vehicle_yaw_angle_rad, vehicle orientation
 	 */
 	void _adaptSetpointDirection(matrix::Vector2f &setpoint_dir, int &setpoint_index, float vehicle_yaw_angle_rad);
+
+	/**
+	 * Constrains the Acceleration setpoint cosdering the current obstacle distances, the current acceleration setpoint and velocity setpoint
+	 */
+	void _constrainAccelerationSetpoint(matrix::Vector2f &setpoint_accel, const matrix::Vector2f &setpoint_vel);
 
 	/**
 	 * Determines whether a new sensor measurement is used
@@ -148,7 +151,9 @@ private:
 		(ParamBool<px4::params::CP_GO_NO_DATA>) _param_cp_go_nodata, /**< movement allowed where no data*/
 		(ParamFloat<px4::params::MPC_XY_P>) _param_mpc_xy_p, /**< p gain from position controller*/
 		(ParamFloat<px4::params::MPC_JERK_MAX>) _param_mpc_jerk_max, /**< vehicle maximum jerk*/
-		(ParamFloat<px4::params::MPC_ACC_HOR>) _param_mpc_acc_hor /**< vehicle maximum horizontal acceleration*/
+		(ParamFloat<px4::params::MPC_ACC_HOR>) _param_mpc_acc_hor, /**< vehicle maximum horizontal acceleration*/
+		(ParamFloat<px4::params::MPC_XY_VEL_P_ACC>) _param_mpc_vel_p_acc, /**< p gain from velocity controller*/
+		(ParamFloat<px4::params::MPC_VEL_MANUAL>) _param_mpc_vel_manual /**< p gain from velocity controller*/
 	)
 
 	/**
