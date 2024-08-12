@@ -60,6 +60,12 @@
 #include <uORB/topics/vehicle_command.h>
 
 using namespace time_literals;
+using matrix::Vector2f;
+using matrix::Vector3f;
+using matrix::Quatf;
+using matrix::Eulerf;
+using matrix::wrap;
+using matrix::wrap_2pi;
 
 class CollisionPrevention : public ModuleParams
 {
@@ -79,7 +85,7 @@ public:
 	 * @param curr_pos, current vehicle position
 	 * @param curr_vel, current vehicle velocity
 	 */
-	void modifySetpoint(matrix::Vector2f &setpoint_accel, const matrix::Vector2f &setpoint_vel);
+	void modifySetpoint(Vector2f &setpoint_accel, const Vector2f &setpoint_vel);
 protected:
 
 	obstacle_distance_s _obstacle_map_body_frame {};
@@ -88,13 +94,13 @@ protected:
 	uint16_t _data_maxranges[sizeof(_obstacle_map_body_frame.distances) / sizeof(
 										    _obstacle_map_body_frame.distances[0])]; /**< in cm */
 
-	void _addDistanceSensorData(distance_sensor_s &distance_sensor, const matrix::Quatf &vehicle_attitude);
+	void _addDistanceSensorData(distance_sensor_s &distance_sensor, const Quatf &vehicle_attitude);
 
 	/**
 	 * Updates obstacle distance message with measurement from offboard
 	 * @param obstacle, obstacle_distance message to be updated
 	 */
-	void _addObstacleSensorData(const obstacle_distance_s &obstacle, const matrix::Quatf &vehicle_attitude);
+	void _addObstacleSensorData(const obstacle_distance_s &obstacle, const Quatf &vehicle_attitude);
 
 	/**
 	 * Computes an adaption to the setpoint direction to guide towards free space
@@ -102,12 +108,12 @@ protected:
 	 * @param setpoint_index, index of the setpoint in the internal obstacle map
 	 * @param vehicle_yaw_angle_rad, vehicle orientation
 	 */
-	void _adaptSetpointDirection(matrix::Vector2f &setpoint_dir, int &setpoint_index, float vehicle_yaw_angle_rad);
+	void _adaptSetpointDirection(Vector2f &setpoint_dir, int &setpoint_index, float vehicle_yaw_angle_rad);
 
 	/**
 	 * Constrains the Acceleration setpoint cosdering the current obstacle distances, the current acceleration setpoint and velocity setpoint
 	 */
-	void _constrainAccelerationSetpoint(matrix::Vector2f &setpoint_accel, const matrix::Vector2f &setpoint_vel);
+	void _constrainAccelerationSetpoint(Vector2f &setpoint_accel, const Vector2f &setpoint_vel);
 
 	/**
 	 * Determines whether a new sensor measurement is used
@@ -169,15 +175,15 @@ private:
 	 * @param curr_pos, current vehicle position
 	 * @param curr_vel, current vehicle velocity
 	 */
-	void _calculateConstrainedSetpoint(matrix::Vector2f &setpoint, const matrix::Vector2f &curr_pos,
-					   const matrix::Vector2f &curr_vel);
+	void _calculateConstrainedSetpoint(Vector2f &setpoint, const Vector2f &curr_pos,
+					   const Vector2f &curr_vel);
 
 	/**
 	 * Publishes collision_constraints message
 	 * @param original_setpoint, setpoint before collision prevention intervention
 	 * @param adapted_setpoint, collision prevention adaped setpoint
 	 */
-	void _publishConstrainedSetpoint(const matrix::Vector2f &original_setpoint, const matrix::Vector2f &adapted_setpoint);
+	void _publishConstrainedSetpoint(const Vector2f &original_setpoint, const Vector2f &adapted_setpoint);
 
 	/**
 	 * Publishes obstacle_distance message with fused data from offboard and from distance sensors
