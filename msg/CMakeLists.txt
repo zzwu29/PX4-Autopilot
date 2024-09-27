@@ -73,6 +73,7 @@ set(msg_files
 	DebugVect.msg
 	DifferentialPressure.msg
 	DistanceSensor.msg
+	DistanceSensorModeChangeRequest.msg
 	Ekf2Timestamps.msg
 	EscReport.msg
 	EscStatus.msg
@@ -188,6 +189,9 @@ set(msg_files
 	RoverDifferentialGuidanceStatus.msg
 	RoverDifferentialSetpoint.msg
 	RoverDifferentialStatus.msg
+	RoverMecanumGuidanceStatus.msg
+	RoverMecanumSetpoint.msg
+	RoverMecanumStatus.msg
 	Rpm.msg
 	RtlStatus.msg
 	RtlTimeEstimate.msg
