@@ -390,20 +390,22 @@ CollisionPrevention::_constrainAccelerationSetpoint(Vector2f &setpoint_accel, co
 
 	const float setpoint_length = setpoint_accel.norm();
 
-	const hrt_abstime constrain_time = getTime();
+	const hrt_abstime now = getTime();
 	int num_fov_bins = 0;
 
 	float acc_vel_constraint = INFINITY;
-	Vector2f acc_vel_constraint_dir = {0.f, 0.f};
-	Vector2f acc_vel_constraint_setpoint = {0.f, 0.f};
+	Vector2f acc_vel_constraint_dir{};
+	Vector2f acc_vel_constraint_setpoint{};
 
-	if ((constrain_time - _obstacle_map_body_frame.timestamp) < RANGE_STREAM_TIMEOUT_US) {
+	if ((now - _obstacle_map_body_frame.timestamp) < RANGE_STREAM_TIMEOUT_US) {
 
 		const float min_dist_to_keep = math::max(_obstacle_map_body_frame.min_distance / 100.0f, _param_cp_dist.get());
-		bool setpoint_possible = true;
-		Vector2f new_setpoint = {0.f, 0.f};
+		bool setpoint_possible = true; // False when moving into direction with no sensor
+		Vector2f new_setpoint{};
 
-		if (setpoint_length > 0.001f) {
+		const bool is_stick_deflected = setpoint_length > 0.001f;
+
+		if (is_stick_deflected) {
 			Vector2f setpoint_dir = setpoint_accel / setpoint_length;
 
 			const float sp_angle_body_frame = atan2f(setpoint_dir(1), setpoint_dir(0)) - vehicle_yaw_angle_rad;
@@ -415,12 +417,12 @@ CollisionPrevention::_constrainAccelerationSetpoint(Vector2f &setpoint_accel, co
 			_adaptSetpointDirection(setpoint_dir, sp_index, vehicle_yaw_angle_rad);
 
 			float closest_distance = INFINITY;
-			Vector2f bin_closest_dist = {0.f, 0.f};
+			Vector2f bin_closest_dist{};
 
 
 			for (int i = 0; i < INTERNAL_MAP_USED_BINS; i++) {
 				// delete stale values
-				const hrt_abstime data_age = constrain_time - _data_timestamps[i];
+				const hrt_abstime data_age = now - _data_timestamps[i];
 				const float max_range = _data_maxranges[i] * 0.01f;
 
 				if (data_age > RANGE_STREAM_TIMEOUT_US) {
@@ -482,13 +484,14 @@ CollisionPrevention::_constrainAccelerationSetpoint(Vector2f &setpoint_accel, co
 			const Vector2f tangential_component = setpoint_dir - normal_component;
 
 
-			if (closest_distance < min_dist_to_keep && setpoint_possible) {
+			if (closest_distance < min_dist_to_keep && setpoint_possible) { // Already closer than allowed, push away
 				float scale = (closest_distance - min_dist_to_keep); // always negative meaning it will push us away from the obstacle
 				new_setpoint = tangential_component * setpoint_length  + bin_closest_dist * _param_mpc_xy_p.get() *
 					       _param_mpc_vel_p_acc.get() *
 					       scale; // scale is on the closest distance vector, as thats the critical direction
 
-			} else if (closest_distance >= min_dist_to_keep && setpoint_possible) {
+			} else if (closest_distance >= min_dist_to_keep
+				   && setpoint_possible) { // Enough distance but constrain input towards obstacle
 				const float scale_distance = math::max(min_dist_to_keep, _param_mpc_vel_manual.get() / _param_mpc_xy_p.get());
 				float scale = (closest_distance - min_dist_to_keep) / scale_distance;
 				scale *= scale; // square the scale to lower commanded accelerations close to the obstacle
@@ -518,10 +521,10 @@ CollisionPrevention::_constrainAccelerationSetpoint(Vector2f &setpoint_accel, co
 		} else {
 			// If no setpoint is provided, still apply force when you are close to an obstacle
 			float closest_distance = INFINITY;
-			Vector2f bin_closest_dist = {0.f, 0.f};
+			Vector2f bin_closest_dist;
 
 			for (int i = 0; i < INTERNAL_MAP_USED_BINS; i++) {
-				if (constrain_time - _data_timestamps[i] > RANGE_STREAM_TIMEOUT_US) {
+				if (now - _data_timestamps[i] > RANGE_STREAM_TIMEOUT_US) {
 					_obstacle_map_body_frame.distances[i] = UINT16_MAX;
 				}
 
@@ -569,7 +572,7 @@ CollisionPrevention::_constrainAccelerationSetpoint(Vector2f &setpoint_accel, co
 		// if distance data is stale, switch to Loiter
 		if (getElapsedTime(&_last_timeout_warning) > 1_s && getElapsedTime(&_time_activated) > 1_s) {
 
-			if ((constrain_time - _obstacle_map_body_frame.timestamp) > TIMEOUT_HOLD_US
+			if ((now - _obstacle_map_body_frame.timestamp) > TIMEOUT_HOLD_US
 			    && getElapsedTime(&_time_activated) > TIMEOUT_HOLD_US) {
 				_publishVehicleCmdDoLoiter();
 			}
@@ -583,26 +586,15 @@ void
 CollisionPrevention::modifySetpoint(Vector2f &setpoint_accel, const Vector2f &setpoint_vel)
 {
 	//calculate movement constraints based on range data
-	Vector2f new_setpoint = setpoint_accel;
 	Vector2f original_setpoint = setpoint_accel;
-	_constrainAccelerationSetpoint(new_setpoint, setpoint_vel);
-
-	//warn user if collision prevention starts to interfere
-	bool currently_interfering = (new_setpoint(0) < original_setpoint(0) - 0.05f * _param_mpc_acc_hor.get()
-				      || new_setpoint(0) > original_setpoint(0) + 0.05f * _param_mpc_acc_hor.get()
-				      || new_setpoint(1) < original_setpoint(1) - 0.05f * _param_mpc_acc_hor.get()
-				      || new_setpoint(1) > original_setpoint(1) + 0.05f * _param_mpc_acc_hor.get());
-
-	_interfering = currently_interfering;
+	_constrainAccelerationSetpoint(setpoint_accel, setpoint_vel);
 
 	// publish constraints
 	collision_constraints_s	constraints{};
-	constraints.timestamp = getTime();
 	original_setpoint.copyTo(constraints.original_setpoint);
-	new_setpoint.copyTo(constraints.adapted_setpoint);
+	setpoint_accel.copyTo(constraints.adapted_setpoint);
+	constraints.timestamp = getTime();
 	_constraints_pub.publish(constraints);
-
-	setpoint_accel = new_setpoint;
 }
 
 void CollisionPrevention::_publishVehicleCmdDoLoiter()

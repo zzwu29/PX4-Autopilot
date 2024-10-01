@@ -80,10 +80,8 @@ public:
 
 	/**
 	 * Computes collision free setpoints
-	 * @param original_setpoint, setpoint before collision prevention intervention
-	 * @param max_speed, maximum xy speed
-	 * @param curr_pos, current vehicle position
-	 * @param curr_vel, current vehicle velocity
+	 * @param setpoint_accel setpoint purely based on sticks, to be modified
+	 * @param setpoint_vel current velocity setpoint as information to be able to stop in time, does not get changed
 	 */
 	void modifySetpoint(Vector2f &setpoint_accel, const Vector2f &setpoint_vel);
 protected:
@@ -131,7 +129,6 @@ protected:
 
 private:
 
-	bool _interfering{false};		/**< states if the collision prevention interferes with the user input */
 	bool _was_active{false};		/**< states if the collision prevention interferes with the user input */
 
 	orb_advert_t _mavlink_log_pub{nullptr};	 	/**< Mavlink log uORB handle */
