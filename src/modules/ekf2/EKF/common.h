@@ -618,6 +618,7 @@ uint64_t mag_heading_consistent  :
 		uint64_t opt_flow_terrain        : 1; ///< 40 - true if we are fusing flow data for terrain
 		uint64_t valid_fake_pos          : 1; ///< 41 - true if a valid constant position is being fused
 		uint64_t constant_pos            : 1; ///< 42 - true if the vehicle is at a constant position
+		uint64_t rng_kin_unknown	 : 1; ///< xx - true when the range finder kinematic consistency check is not running
 
 	} flags;
 	uint64_t value;
