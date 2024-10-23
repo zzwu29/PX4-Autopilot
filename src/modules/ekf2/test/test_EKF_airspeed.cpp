@@ -186,8 +186,12 @@ TEST_F(EkfAirspeedTest, testAirspeedDeadReckoning)
 	const float eph = 50.f;
 	const float epv = 10.f;
 
-	_ekf->setEkfGlobalOrigin(latitude_new, longitude_new, altitude_new);
 	_ekf->resetGlobalPosToExternalObservation(latitude_new, longitude_new, altitude_new, eph, epv, 0);
+
+	const Vector3f pos = _ekf->getPosition();
+	EXPECT_NEAR(pos(0), 0.f, 1e-3f);
+	EXPECT_NEAR(pos(1), 0.f, 1e-3f);
+	EXPECT_NEAR(pos(2), 0.f, 1e-3f);
 
 	// Simulate the fact that the sideslip can start immediately, without
 	// waiting for a measurement sample.
@@ -227,7 +231,6 @@ TEST_F(EkfAirspeedTest, testAirspeedDeadReckoningLatLonAltReset)
 	const float eph = 50.f;
 	const float epv = 1.f;
 
-	_ekf->setEkfGlobalOrigin(latitude, longitude, altitude);
 	_ekf->resetGlobalPosToExternalObservation(latitude, longitude, altitude, eph, epv, 0);
 
 	_ekf_wrapper.enableBetaFusion();
