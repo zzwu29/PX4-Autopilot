@@ -104,15 +104,16 @@ bool Ekf::setLatLonOrigin(const double latitude, const double longitude, const f
 		return false;
 	}
 
-	const Vector2f pos_prev = getLocalHorizontalPosition();
-	_local_origin_lat_lon.initReference(latitude, longitude, _time_delayed_us);
-
 	if (_local_origin_lat_lon.isInitialized()) {
+		const Vector2f pos_prev = getLocalHorizontalPosition();
+		_local_origin_lat_lon.initReference(latitude, longitude, _time_delayed_us);
 		const Vector2f pos_new = getLocalHorizontalPosition();
 		const Vector2f delta_pos = pos_new - pos_prev;
 		updateHorizontalPositionResetStatus(delta_pos);
 
-	} else if (local_position_is_valid()) {
+	} else if (isLocalHorizontalPositionValid()) {
+		const Vector2f pos_prev = getLocalHorizontalPosition();
+		_local_origin_lat_lon.initReference(latitude, longitude, _time_delayed_us);
 		double new_latitude;
 		double new_longitude;
 		_local_origin_lat_lon.reproject(pos_prev(0), pos_prev(1), new_latitude, new_longitude);
@@ -221,7 +222,7 @@ bool Ekf::resetAltitudeTo(const float altitude, const float vpos_var)
 	if (!PX4_ISFINITE(_local_origin_alt)) {
 		const float local_alt_prev = _gpos.altitude();
 
-		if (local_position_is_valid()) {
+		if (isLocalVerticalPositionValid()) {
 			_local_origin_alt = altitude - local_alt_prev;
 
 		} else {
