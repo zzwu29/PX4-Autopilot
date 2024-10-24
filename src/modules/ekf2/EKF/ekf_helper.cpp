@@ -104,20 +104,22 @@ bool Ekf::setLatLonOrigin(const double latitude, const double longitude, const f
 		return false;
 	}
 
-	if (_local_origin_lat_lon.isInitialized()) {
-		const Vector2f pos_prev = getLocalHorizontalPosition();
-		_local_origin_lat_lon.initReference(latitude, longitude, _time_delayed_us);
-		const Vector2f pos_new = getLocalHorizontalPosition();
-		const Vector2f delta_pos = pos_new - pos_prev;
-		updateHorizontalPositionResetStatus(delta_pos);
-
-	} else if (isLocalHorizontalPositionValid()) {
+	if (!_local_origin_lat_lon.isInitialized() && isLocalHorizontalPositionValid()) {
+		// Already navigating in a local frame, use the origin to initialize global position
 		const Vector2f pos_prev = getLocalHorizontalPosition();
 		_local_origin_lat_lon.initReference(latitude, longitude, _time_delayed_us);
 		double new_latitude;
 		double new_longitude;
 		_local_origin_lat_lon.reproject(pos_prev(0), pos_prev(1), new_latitude, new_longitude);
 		resetHorizontalPositionTo(new_latitude, new_longitude, hpos_var);
+
+	} else {
+		// Simply move the origin and compute the change in local position
+		const Vector2f pos_prev = getLocalHorizontalPosition();
+		_local_origin_lat_lon.initReference(latitude, longitude, _time_delayed_us);
+		const Vector2f pos_new = getLocalHorizontalPosition();
+		const Vector2f delta_pos = pos_new - pos_prev;
+		updateHorizontalPositionResetStatus(delta_pos);
 	}
 
 	return true;
@@ -129,21 +131,18 @@ bool Ekf::setAltOrigin(const float altitude, const float vpos_var)
 		return false;
 	}
 
-	float local_alt_prev;
+	ECL_INFO("EKF origin altitude %.1fm -> %.1fm", (double)_local_origin_alt,
+		 (double)altitude);
 
-	if (PX4_ISFINITE(_local_origin_alt)) {
-		local_alt_prev = _gpos.altitude();
+	if (!PX4_ISFINITE(_local_origin_alt) && isLocalVerticalPositionValid()) {
+		const float local_alt_prev = _gpos.altitude();
+		_local_origin_alt = altitude;
+		resetHeightTo(local_alt_prev + _local_origin_alt);
 
 	} else {
-		local_alt_prev = _gpos.altitude() - _local_origin_alt;
-	}
-
-	_local_origin_alt = altitude;
-	//TODO: lpos reset counter
-
-	if (PX4_ISFINITE(local_alt_prev)) {
-		ECL_INFO("EKF origin updated, local vertical position %.1fm -> %.1fm", (double) - local_alt_prev,
-			 (double) - (_gpos.altitude() - _local_origin_alt));
+		// const float delta_origin_alt = altitude - _local_origin_alt;
+		_local_origin_alt = altitude;
+		// updateVerticalPositionResetStatus(-delta_origin_alt); //TODO:
 	}
 
 	return true;
